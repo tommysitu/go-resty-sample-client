@@ -1,50 +1,52 @@
 package interview_accountapi
 
 type Error struct {
-	Code    string `json:"error_code"`
-	Message string `json:"error_message"`
+	Code    string `json:"error_code,omitempty"`
+	Message string `json:"error_message,omitempty"`
 }
 
 type Resource struct {
-	Data  Account           `json:"data"`
-	Links map[string]string `json:"links"`
+	Data  Account           `json:"data,omitempty"`
+	Links map[string]string `json:"links,omitempty"`
 }
 
 type Resources struct {
-	Data  []Account         `json:"data"`
-	Links map[string]string `json:"links"`
+	Data  []Account         `json:"data,omitempty"`
+	Links map[string]string `json:"links,omitempty"`
 }
 
 type Account struct {
-	Attributes     Attributes `json:"attributes"`
-	CreatedOn      string     `json:"created_on"`
-	ID             string     `json:"id"`
-	ModifiedOn     string     `json:"modified_on"`
-	OrganizationID string     `json:"organisation_id"`
-	Type           string     `json:"type"`
-	Version        int        `json:"version"`
+	Attributes     Attributes `json:"attributes,omitempty"`
+	CreatedOn      string     `json:"created_on,omitempty"`
+	ID             string     `json:"id,omitempty"`
+	ModifiedOn     string     `json:"modified_on,omitempty"`
+	OrganizationID string     `json:"organisation_id,omitempty"`
+	Type           string     `json:"type,omitempty"`
+	Version        int        `json:"version,omitempty"`
 }
 
 type AccountParams struct {
-	Attributes     Attributes `json:"attributes"`
-	ID             string     `json:"id"`
-	OrganizationID string     `json:"organisation_id"`
-	Type           string     `json:"type"`
+	Attributes     Attributes `json:"attributes,omitempty"`
+	ID             string     `json:"id,omitempty"`
+	OrganizationID string     `json:"organisation_id,omitempty"`
+	Type           string     `json:"type,omitempty"`
 }
 
 type Attributes struct {
-	AccountClassification       string   `json:"account_classification"`
-	AccountMatchingOptOut       bool     `json:"account_matching_opt_out"`
-	AccountNumber               string   `json:"account_number"`
-	AlternativeBankAccountNames []string `json:"alternative_bank_account_names"`
-	BankID                      string   `json:"bank_id"`
-	BankIDCode                  string   `json:"bank_id_code"`
-	BaseCurrency                string   `json:"base_currency"`
-	BIC                         string   `json:"bic"`
-	Country                     string   `json:"country"`
-	CustomerID                  string   `json:"customer_id"`
-	FirstName                   string   `json:"first_name"`
-	IBAN                        string   `json:"iban"`
-	JointAccount                bool     `json:"joint_account"`
-	Title                       string   `json:"title"`
+	AccountClassification       string   `json:"account_classification,omitempty"`
+	AccountMatchingOptOut       bool     `json:"account_matching_opt_out,omitempty"`
+	AccountNumber               string   `json:"account_number,omitempty"`
+	AlternativeBankAccountNames []string `json:"alternative_bank_account_names,omitempty"`
+	BankID                      string   `json:"bank_id,omitempty"`
+	BankIDCode                  string   `json:"bank_id_code,omitempty"`
+	BankAccountName             string   `json:"bank_account_name,omitempty"`
+	BaseCurrency                string   `json:"base_currency,omitempty"`
+	BIC                         string   `json:"bic,omitempty"`
+	Country                     string   `json:"country,omitempty"`
+	CustomerID                  string   `json:"customer_id,omitempty"`
+	FirstName                   string   `json:"first_name,omitempty"`
+	IBAN                        string   `json:"iban,omitempty"`
+	JointAccount                bool     `json:"joint_account,omitempty"`
+	Title                       string   `json:"title,omitempty"`
+	SecondaryIdentification     string   `json:"secondary_identification,omitempty"`
 }

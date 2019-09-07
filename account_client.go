@@ -14,23 +14,40 @@ type AccountClient struct {
 
 func NewAccountClient() *AccountClient {
 	client := resty.New()
+	client.SetDebug(false)
 	client.SetHostURL(DefaultBaseURL)
 	client.SetError(&Error{})
 
 	return &AccountClient{client: client}
 }
 
-func (a *AccountClient) Create(accountParams *AccountParams) (*Resource, error) {
+func (a *AccountClient) Create(accountParams AccountParams) (*Resource, error) {
 
 	r := a.client.R().SetResult(&Resource{})
 
-	resp, e := r.SetBody(accountParams).
+	resp, e := r.SetBody(map[string]AccountParams{"data": accountParams}).
 		Post("/v1/organisation/accounts")
 
 	if e != nil {
 		return nil, fmt.Errorf("create account failed: %s", e)
 	}
 
+	return resp.Result().(*Resource), nil
+}
+
+func (a *AccountClient) Fetch(id string) (*Resource, error) {
+	resp, e := a.client.R().
+		SetResult(&Resource{}).
+		SetPathParams(map[string]string{"account.id": id}).
+		Get("/v1/organisation/accounts/{account.id}")
+
+	if e != nil {
+		return nil, fmt.Errorf("fetch account for ID %s failed: %s", id, e)
+	}
+
+	if resp.Error() != nil {
+		return nil, getAPIError(resp)
+	}
 	return resp.Result().(*Resource), nil
 }
 
@@ -46,8 +63,12 @@ func (a *AccountClient) Delete(id string, version int) error {
 	}
 
 	if resp.Error() != nil {
-		apiError := resp.Error().(*Error)
-		return fmt.Errorf("request failed [%s]: %s", apiError.Code, apiError.Message)
+		return getAPIError(resp)
 	}
 	return nil
+}
+
+func getAPIError(resp *resty.Response) error {
+	apiError := resp.Error().(*Error)
+	return fmt.Errorf("request failed [%s]: %s", apiError.Code, apiError.Message)
 }
