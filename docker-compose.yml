@@ -40,3 +40,12 @@ services:
     environment:
       - SKIP_SETCAP=1
       - VAULT_DEV_ROOT_TOKEN_ID=8fb95528-57c6-422e-9722-d2147bcba8ed
+
+  clienttest:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - API_ADDR=http://accountapi:8080
+    depends_on:
+      - accountapi

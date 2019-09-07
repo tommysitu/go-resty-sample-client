@@ -3,6 +3,7 @@ package interview_accountapi
 import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"os"
 	"strconv"
 )
 
@@ -15,7 +16,11 @@ type AccountClient struct {
 func NewAccountClient() *AccountClient {
 	client := resty.New()
 	client.SetDebug(false)
-	client.SetHostURL(DefaultBaseURL)
+	apiURL := os.Getenv("API_ADDR")
+	if apiURL == "" {
+		apiURL = DefaultBaseURL
+	}
+	client.SetHostURL(apiURL)
 	client.SetError(&Error{})
 
 	return &AccountClient{client: client}
