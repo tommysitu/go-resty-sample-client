@@ -35,6 +35,26 @@ func (a *AccountClient) Create(accountParams AccountParams) (*Resource, error) {
 	return resp.Result().(*Resource), nil
 }
 
+func (a *AccountClient) List(pageNumber string, pageSize string) (*Resources, error) {
+
+	r := a.client.R().SetResult(&Resources{})
+
+	if pageNumber != "" {
+		r.SetQueryParam("page[number]", pageNumber)
+	}
+
+	if pageSize != "" {
+		r.SetQueryParam("page[size]", pageSize)
+	}
+	resp, e := r.Get("/v1/organisation/accounts")
+
+	if e != nil {
+		return nil, fmt.Errorf("list accounts failed: %s", e)
+	}
+
+	return resp.Result().(*Resources), nil
+}
+
 func (a *AccountClient) Fetch(id string) (*Resource, error) {
 	resp, e := a.client.R().
 		SetResult(&Resource{}).

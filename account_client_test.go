@@ -11,14 +11,6 @@ var _ = Describe("AccountsClient", func() {
 
 	const testAccountId = "ad27e265-9605-4b4b-a0e5-3003ea9cc4dc"
 	var client *AccountClient
-	testAccount := AccountParams{
-		Attributes: Attributes{
-			Country: "GB",
-		},
-		ID:             "ad27e265-9605-4b4b-a0e5-3003ea9cc4dc",
-		OrganizationID: "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c",
-		Type:           "accounts",
-	}
 
 	BeforeEach(func() {
 		client = NewAccountClient()
@@ -31,12 +23,65 @@ var _ = Describe("AccountsClient", func() {
 	Describe("Create", func() {
 		Context("With mandatory attributes", func() {
 			It("should return a new account without error", func() {
-				resource, err := client.Create(testAccount)
+				resource, err := client.Create(getTestAccountParams(testAccountId))
 				Expect(err).To(BeNil())
 				Expect(resource.Data.ID).To(Equal(testAccountId))
 				Expect(resource.Data.OrganizationID).To(Equal("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"))
 				Expect(resource.Data.Attributes.Country).To(Equal("GB"))
 				Expect(resource.Links).To(Equal(map[string]string{"self": "/v1/organisation/accounts/ad27e265-9605-4b4b-a0e5-3003ea9cc4dc"}))
+			})
+		})
+	})
+
+	Describe("List", func() {
+		Context("When no account is available", func() {
+			It("should return empty data", func() {
+				resources, err := client.List("", "")
+				Expect(err).To(BeNil())
+				Expect(resources.Data).To(HaveLen(0))
+			})
+		})
+
+		Context("When accounts are present", func() {
+			uuids := make([]string, 3)
+			BeforeEach(func() {
+				for i := 0; i < 3; i++ {
+					uuids[i] = uuid.NewV4().String()
+					_, _ = client.Create(getTestAccountParams(uuids[i]))
+				}
+			})
+
+			AfterEach(func() {
+				for i := 0; i < 3; i++ {
+					_ = client.Delete(uuids[i], 0)
+				}
+			})
+
+			It("should return a list of account data", func() {
+				resources, err := client.List("", "")
+				Expect(err).To(BeNil())
+				Expect(resources.Data).To(HaveLen(3))
+				Expect(resources.Data[0].ID).To(Equal(uuids[0]))
+				Expect(resources.Data[1].ID).To(Equal(uuids[1]))
+				Expect(resources.Data[2].ID).To(Equal(uuids[2]))
+				Expect(resources.Links).To(Equal(map[string]string{
+					"self": "/v1/organisation/accounts",
+					"first": "/v1/organisation/accounts?page%5Bnumber%5D=first",
+					"last": "/v1/organisation/accounts?page%5Bnumber%5D=last",
+				}))
+			})
+
+			It("should support paging", func() {
+				resources, err := client.List("0", "2")
+				Expect(err).To(BeNil())
+				Expect(resources.Data).To(HaveLen(2))
+				Expect(resources.Data[0].ID).To(Equal(uuids[0]))
+				Expect(resources.Data[1].ID).To(Equal(uuids[1]))
+
+				resources, err = client.List("1", "2")
+				Expect(err).To(BeNil())
+				Expect(resources.Data).To(HaveLen(1))
+				Expect(resources.Data[0].ID).To(Equal(uuids[2]))
 			})
 		})
 	})
@@ -53,8 +98,8 @@ var _ = Describe("AccountsClient", func() {
 		})
 
 		Context("An existing account", func() {
-			JustBeforeEach(func() {
-				_, _ = client.Create(testAccount)
+			BeforeEach(func() {
+				_, _ = client.Create(getTestAccountParams(testAccountId))
 			})
 
 			It("should return account data", func() {
@@ -76,8 +121,8 @@ var _ = Describe("AccountsClient", func() {
 
 		Context("An existing account", func() {
 
-			JustBeforeEach(func() {
-				_, _ = client.Create(testAccount)
+			BeforeEach(func() {
+				_, _ = client.Create(getTestAccountParams(testAccountId))
 			})
 
 			It("should not fail", func() {
@@ -87,3 +132,14 @@ var _ = Describe("AccountsClient", func() {
 		})
 	})
 })
+
+func getTestAccountParams(id string) AccountParams {
+	return AccountParams{
+		Attributes: Attributes{
+			Country: "GB",
+		},
+		ID:             id,
+		OrganizationID: "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c",
+		Type:           "accounts",
+	}
+}
