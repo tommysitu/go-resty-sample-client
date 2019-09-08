@@ -1,4 +1,4 @@
-package interview_accountapi
+package accountapi
 
 import (
 	"fmt"
@@ -8,30 +8,35 @@ import (
 	"strconv"
 )
 
-const DefaultBaseURL = "http://localhost:8080"
+const defaultBaseURL = "http://localhost:8080"
 
+// AccountClient is used to invoke Form3 Accounts API.
 type AccountClient struct {
 	client *resty.Client
 }
 
+// NewAccountClient returns a new instance of AccountClient.
 func NewAccountClient() *AccountClient {
 	client := resty.New()
 	client.SetDebug(false)
+	// Try getting Accounts API base URL from env var
 	apiURL := os.Getenv("API_ADDR")
 	if apiURL == "" {
-		apiURL = DefaultBaseURL
+		apiURL = defaultBaseURL
 	}
 	client.SetHostURL(apiURL)
+	// Setting global error struct that maps to Form3's error response
 	client.SetError(&Error{})
 
 	return &AccountClient{client: client}
 }
 
+// Create registers an existing account or creates a new one.
 func (a *AccountClient) Create(accountParams AccountParams) (*Resource, error) {
 
-	r := a.client.R().SetResult(&Resource{})
-
-	resp, err := r.SetBody(map[string]AccountParams{"data": accountParams}).
+	resp, err := a.client.R().
+		SetResult(&Resource{}).
+		SetBody(map[string]AccountParams{"data": accountParams}).
 		Post("/v1/organisation/accounts")
 
 	if err != nil {
@@ -45,6 +50,7 @@ func (a *AccountClient) Create(accountParams AccountParams) (*Resource, error) {
 	return resp.Result().(*Resource), nil
 }
 
+// List return a list of accounts.
 func (a *AccountClient) List(paging PagingParams) (*Resources, error) {
 
 	r := a.client.R().SetResult(&Resources{})
@@ -69,11 +75,13 @@ func (a *AccountClient) List(paging PagingParams) (*Resources, error) {
 	return resp.Result().(*Resources), nil
 }
 
+// Fetch gets a single account by ID
 func (a *AccountClient) Fetch(id string) (*Resource, error) {
 
+	// Validate the account ID
 	_, err := uuid.FromString(id)
 	if err != nil {
-		return nil, fmt.Errorf("account ID must be a valid v4 UUID")
+		return nil, fmt.Errorf("account ID must be a valid UUID")
 	}
 
 	resp, err := a.client.R().
@@ -91,11 +99,13 @@ func (a *AccountClient) Fetch(id string) (*Resource, error) {
 	return resp.Result().(*Resource), nil
 }
 
+// Delete deletes an account by ID
 func (a *AccountClient) Delete(id string, version int) error {
 
+	// Validate the account ID
 	_, err := uuid.FromString(id)
 	if err != nil {
-		return fmt.Errorf("account ID must be a valid v4 UUID")
+		return fmt.Errorf("account ID must be a valid UUID")
 	}
 
 	resp, err := a.client.R().
@@ -113,6 +123,7 @@ func (a *AccountClient) Delete(id string, version int) error {
 	return nil
 }
 
+// Convert error response into error message
 func getAPIError(resp *resty.Response) error {
 	apiError := resp.Error().(*Error)
 	return fmt.Errorf("request failed [%s]: %s", apiError.Code, apiError.Message)

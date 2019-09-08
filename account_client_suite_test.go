@@ -1,4 +1,4 @@
-package interview_accountapi
+package accountapi
 
 import (
 	"testing"

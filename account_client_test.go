@@ -1,4 +1,4 @@
-package interview_accountapi
+package accountapi
 
 import (
 	"fmt"
@@ -7,9 +7,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var _ = Describe("AccountsClient", func() {
+var _ = Describe("AccountClient", func() {
 
-	const testAccountId = "ad27e265-9605-4b4b-a0e5-3003ea9cc4dc"
+	const testAccountID = "ad27e265-9605-4b4b-a0e5-3003ea9cc4dc"
 	var client *AccountClient
 
 	BeforeEach(func() {
@@ -17,15 +17,15 @@ var _ = Describe("AccountsClient", func() {
 	})
 
 	AfterEach(func() {
-		_ = client.Delete(testAccountId, 0)
+		_ = client.Delete(testAccountID, 0)
 	})
 
 	Describe("Create", func() {
 		Context("With mandatory attributes", func() {
 			It("should return a new account without error", func() {
-				resource, err := client.Create(getTestAccountParams(testAccountId))
+				resource, err := client.Create(getTestAccountParams(testAccountID))
 				Expect(err).To(BeNil())
-				Expect(resource.Data.ID).To(Equal(testAccountId))
+				Expect(resource.Data.ID).To(Equal(testAccountID))
 				Expect(resource.Data.OrganizationID).To(Equal("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"))
 				Expect(resource.Data.Attributes.Country).To(Equal("GB"))
 				Expect(resource.Links).To(Equal(map[string]string{"self": "/v1/organisation/accounts/ad27e265-9605-4b4b-a0e5-3003ea9cc4dc"}))
@@ -83,13 +83,13 @@ var _ = Describe("AccountsClient", func() {
 			})
 
 			It("should support paging", func() {
-				resources, err := client.List(PagingParams{ number: "0" , size: "2"})
+				resources, err := client.List(PagingParams{number: "0", size: "2"})
 				Expect(err).To(BeNil())
 				Expect(resources.Data).To(HaveLen(2))
 				Expect(resources.Data[0].ID).To(Equal(uuids[0]))
 				Expect(resources.Data[1].ID).To(Equal(uuids[1]))
 
-				resources, err = client.List(PagingParams{ number: "1" , size: "2"})
+				resources, err = client.List(PagingParams{number: "1", size: "2"})
 				Expect(err).To(BeNil())
 				Expect(resources.Data).To(HaveLen(1))
 				Expect(resources.Data[0].ID).To(Equal(uuids[2]))
@@ -102,7 +102,7 @@ var _ = Describe("AccountsClient", func() {
 			It("should return a validation error", func() {
 				resource, err := client.Fetch("not-an-uuid")
 
-				Expect(err).To(Equal(fmt.Errorf("account ID must be a valid v4 UUID")))
+				Expect(err).To(Equal(fmt.Errorf("account ID must be a valid UUID")))
 				Expect(resource).To(BeNil())
 			})
 		})
@@ -119,14 +119,14 @@ var _ = Describe("AccountsClient", func() {
 
 		Context("An existing account", func() {
 			BeforeEach(func() {
-				_, _ = client.Create(getTestAccountParams(testAccountId))
+				_, _ = client.Create(getTestAccountParams(testAccountID))
 			})
 
 			It("should return account data", func() {
-				resource, err := client.Fetch(testAccountId)
+				resource, err := client.Fetch(testAccountID)
 
 				Expect(err).To(BeNil())
-				Expect(resource.Data.ID).To(Equal(testAccountId))
+				Expect(resource.Data.ID).To(Equal(testAccountID))
 			})
 		})
 	})
@@ -142,14 +142,14 @@ var _ = Describe("AccountsClient", func() {
 		Context("An existing account", func() {
 
 			BeforeEach(func() {
-				_, _ = client.Create(getTestAccountParams(testAccountId))
+				_, _ = client.Create(getTestAccountParams(testAccountID))
 			})
 
 			It("should not fail", func() {
-				err := client.Delete(testAccountId, 0)
+				err := client.Delete(testAccountID, 0)
 				Expect(err).To(BeNil())
 
-				resource, err := client.Fetch(testAccountId)
+				resource, err := client.Fetch(testAccountID)
 				Expect(resource).To(BeNil())
 			})
 		})
