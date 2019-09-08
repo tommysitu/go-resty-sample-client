@@ -32,6 +32,11 @@ type AccountParams struct {
 	Type           string     `json:"type,omitempty"`
 }
 
+type PagingParams struct {
+	number string
+	size   string
+}
+
 type Attributes struct {
 	AccountClassification       string   `json:"account_classification,omitempty"`
 	AccountMatchingOptOut       bool     `json:"account_matching_opt_out,omitempty"`
