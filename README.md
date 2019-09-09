@@ -1,4 +1,4 @@
-# interview-accountapi
+# go-resty-sample-client
 Client library for Form3 fake Account API
 
 ## Dependencies
@@ -12,6 +12,3 @@ The following dependencies are used:
 - [ginkgo](https://github.com/onsi/ginkgo): very popular framework for BDD test
 
 
-## Testing
-
-Run `docker-compose up`
